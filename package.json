@@ -1,0 +1,15 @@
+{
+  "name": "postgres-commands",
+  "version": "1.0.0",
+  "description": "Commands that I use for local Postgres development",
+  "main": "index.js",
+  "repository": "git@github.com:Nijhazer/postgres-commands.git",
+  "author": "Michael Wilson <michael.wilson@hearstautos.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "command-line-args": "^5.0.2",
+    "csv": "^5.1.1",
+    "pg": "^7.8.0"
+  }
+}
