@@ -1,10 +1,22 @@
 const commandLineArgs = require('command-line-args'),
     path = require('path'),
-    util = require('../util');
+    util = require('../util'),
+    { Pool } = require('pg'),
+    { PerformanceObserver, performance } = require('perf_hooks'),
+    ms = require('ms-util');
 
 const pgURI = process.env['POSTGRES_URI'],
-    { Pool } = require('pg'),
     baseParamDefs = [];
+
+const performanceObserver = new PerformanceObserver((items) => {
+    const entry = items.getEntries()[0];
+    console.info(`${entry.name}: ${ms.toWords(entry.duration)}`);
+    performance.clearMarks();
+});
+
+performanceObserver.observe({
+    entryTypes: ['measure']
+});
 
 class BaseCommand {
     constructor(options = {}) {
@@ -40,8 +52,14 @@ class BaseCommand {
     }
 
     async loadCSVInput(headings) {
+        performance.mark('loadCSVInput.loadInput.start');
         await this.loadInput();
+        performance.mark('loadCSVInput.loadInput.finish');
+        performance.measure('loadCSVInput', 'loadCSVInput.loadInput.start', 'loadCSVInput.loadInput.finish');
+        performance.mark('loadCSVInput.parseCSVData.start');
         this.input = await util.parseCSVData(this.input, headings);
+        performance.mark('loadCSVInput.parseCSVData.finish');
+        performance.measure('loadCSVInput', 'loadCSVInput.parseCSVData.start', 'loadCSVInput.parseCSVData.finish');
     }
 
     async executeQuery(sql) {
@@ -50,7 +68,10 @@ class BaseCommand {
                 if (err) {
                     return reject(err);
                 }
+                performance.mark('executeQuery.start');
                 client.query(sql, (err, result) => {
+                    performance.mark('executeQuery.finish');
+                    performance.measure('executeQuery', 'executeQuery.start', 'executeQuery.finish');
                     release();
                     if (err) {
                         return reject(err);

@@ -43,17 +43,19 @@ function parseCSVData(data, headings = []) {
     return new Promise((resolve, reject) => {
         csv.parse(data, function(err, data) {
             if (err) {
+                console.error(err);
                 return reject(err);
-        }
-        csv.transform(data, function(data) {
-            let row = {};
-            for (let i = 0, heading; i < headings.length; i++) {
-                heading = headings[i];
-                row[heading] = data[i];
             }
-            return row;
+            csv.transform(data, function(data) {
+                let row = {};
+                for (let i = 0, heading; i < headings.length; i++) {
+                    heading = headings[i];
+                    row[heading] = data[i];
+                }
+                return row;
             }, function(err, data) {
                 if (err) {
+                    console.error(err);
                     return reject(err);
                 }
                 return resolve(data);

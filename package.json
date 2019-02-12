@@ -10,6 +10,8 @@
   "dependencies": {
     "command-line-args": "^5.0.2",
     "csv": "^5.1.1",
+    "jsdom": "^13.2.0",
+    "ms-util": "^0.1.2",
     "pg": "^7.8.0"
   }
 }
