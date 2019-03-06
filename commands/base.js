@@ -6,17 +6,13 @@ const commandLineArgs = require('command-line-args'),
     ms = require('ms-util');
 
 const pgURI = process.env['POSTGRES_URI'],
-    baseParamDefs = [];
-
-const performanceObserver = new PerformanceObserver((items) => {
-    const entry = items.getEntries()[0];
-    console.info(`${entry.name}: ${ms.toWords(entry.duration)}`);
-    performance.clearMarks();
-});
-
-performanceObserver.observe({
-    entryTypes: ['measure']
-});
+    baseParamDefs = [
+        {
+            name: 'enable-profiling',
+            type: Boolean,
+            defaultValue: false
+        }
+    ];
 
 class BaseCommand {
     constructor(options = {}) {
@@ -35,6 +31,16 @@ class BaseCommand {
             if (typeof this.params[paramDef.name] === "undefined") {
                 throw new Error(`Param '${paramDef.name}' is required.`);
             }
+        }
+        if (this.params['enable-profiling']) {
+            this.performanceObserver = new PerformanceObserver((items) => {
+                const entry = items.getEntries()[0];
+                console.info(`${entry.name}: ${ms.toWords(entry.duration)}`);
+                performance.clearMarks();
+            });
+            this.performanceObserver.observe({
+                entryTypes: ['measure']
+            });
         }
         this._dbPool = new Pool({
             connectionString: pgURI
@@ -62,14 +68,18 @@ class BaseCommand {
         performance.measure('loadCSVInput', 'loadCSVInput.parseCSVData.start', 'loadCSVInput.parseCSVData.finish');
     }
 
-    async executeQuery(sql) {
+    async executeQuery(sql, values = []) {
         return new Promise((resolve, reject) => {
             this._dbPool.connect((err, client, release) => {
                 if (err) {
                     return reject(err);
                 }
                 performance.mark('executeQuery.start');
-                client.query(sql, (err, result) => {
+                const query = {
+                    text: sql,
+                    values
+                };
+                client.query(query, (err, result) => {
                     performance.mark('executeQuery.finish');
                     performance.measure('executeQuery', 'executeQuery.start', 'executeQuery.finish');
                     release();
