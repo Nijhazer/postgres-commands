@@ -7,6 +7,9 @@
   "author": "Michael Wilson <michael.wilson@hearstautos.com>",
   "license": "MIT",
   "private": false,
+  "engines": {
+    "node" : ">=10"
+  },
   "dependencies": {
     "command-line-args": "^5.0.2",
     "csv": "^5.1.1",
