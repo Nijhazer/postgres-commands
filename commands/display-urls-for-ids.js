@@ -52,7 +52,7 @@ function buildEditURL(urlPrefix, content) {
     return `${urlPrefix}/en/content/edit/${content.id}`;
 }
 
-class FindImageDuplicates extends BaseCommand {
+class DisplayURLsForIDs extends BaseCommand {
     async run() {
         await this.loadCSVInput([
             'id',
@@ -77,4 +77,4 @@ class FindImageDuplicates extends BaseCommand {
     }
 }
 
-module.exports = FindImageDuplicates;
+module.exports = DisplayURLsForIDs;
